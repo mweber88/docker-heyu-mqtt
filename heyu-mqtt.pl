@@ -25,6 +25,7 @@ my $mqtt = AnyEvent::MQTT->new(
 sub receive_mqtt_set {
     #called when the subscribed topic is received 
     my ($topic, $message) = @_;
+    $message = encode('UTF-8', $message, Encode::FB_CROAK);
     AE::log info => "topic = $topic";
     AE::log info => "message = $message";
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([A-Z]\d+)/set};
