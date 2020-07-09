@@ -3,7 +3,7 @@ use strict;
 
 use AnyEvent::MQTT;
 use AnyEvent::Run;
-use JSON::XS;
+use JSON::PP;
 
 my $config = {
     mqtt_host => $ENV{MQTT_HOST} || 'localhost',
