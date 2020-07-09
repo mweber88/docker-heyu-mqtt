@@ -23,13 +23,14 @@ my $mqtt = AnyEvent::MQTT->new(
     password => $config->{mqtt_password},
 );
 
+my $decoded_message = {};
 sub receive_mqtt_set {
     #called when the subscribed topic is received 
     my ($topic, $message) = @_;
     #$message = encode('UTF-8', $message, Encode::FB_CROAK);
     AE::log info => "message = $message";
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([A-Z]\d+)/set};
-    my $decoded_message = decode_json $message;
+    $decoded_message = decode_json $message;
     AE::log info => "decoded message = " . Dumper($decoded_message);
     for my $key (keys %$decoded_message) {
         my $value = $decoded_message{$key};
