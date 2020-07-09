@@ -4,6 +4,7 @@ use strict;
 use AnyEvent::MQTT;
 use AnyEvent::Run;
 use JSON::PP;
+use Data::Dumper;
 
 my $config = {
     mqtt_host => $ENV{MQTT_HOST} || 'localhost',
@@ -29,10 +30,10 @@ sub receive_mqtt_set {
     AE::log info => "topic = $topic";
     AE::log info => "message = $message";
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([A-Z]\d+)/set};
-    my %decoded_message = decode_json $message;
-
-    for my $key (keys %decoded_message) {
-        AE::log info => "key $key is %decoded_message{$key}\n";  
+    my $decoded_message = decode_json $message;
+    AE::log info => "decoded message = Dumper($message)";
+    for my $key (keys %$decoded_message) {
+        AE::log info => "key $key is %$decoded_message{$key}\n";  
     }
     
     my $device = $1;
