@@ -27,13 +27,13 @@ sub receive_mqtt_set {
     #called when the subscribed topic is received 
     my ($topic, $message) = @_;
     #$message = encode('UTF-8', $message, Encode::FB_CROAK);
-    AE::log info => "topic = $topic";
     AE::log info => "message = $message";
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([A-Z]\d+)/set};
     my $decoded_message = decode_json $message;
     AE::log info => "decoded message = " . Dumper($decoded_message);
     for my $key (keys %$decoded_message) {
-        #AE::log info => "key $key is %$decoded_message{$key}\n";  
+        my $value = $decoded_message{$key};
+        AE::log info => "key $key is $value\n";  
     }
     
     my $device = $1;
