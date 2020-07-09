@@ -32,7 +32,7 @@ sub receive_mqtt_set {
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([A-Z]\d+)/set};
     $decoded_message = decode_json $message;
     AE::log info => "decoded message = " . Dumper($decoded_message);
-    for my $key (keys %$decoded_message) {
+    foreach $key (keys %decoded_message) {
         my $value = $decoded_message{$key};
         AE::log info => "key $key is $value\n";  
     }
