@@ -1,8 +1,8 @@
 FROM avastsoftware/alpine-perl
-MAINTAINER Kevin Eye <kevineye@gmail.com>
+MAINTAINER Michael Weber <mweberjunk01@gmail.com>
 
 RUN apk -U add curl build-base perl-sub-name \
- && curl -sL https://cpanmin.us | perl - --no-wget --notest AnyEvent::MQTT AnyEvent::Run \
+ && curl -sL https://cpanmin.us | perl - --no-wget --notest AnyEvent::MQTT AnyEvent::Run JSON::XS \
  && mkdir /build \
  && cd /build \
  && curl -LsSO http://www.heyu.org/download/heyu-2.11-rc1.tar.gz \

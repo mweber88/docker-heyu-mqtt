@@ -3,6 +3,7 @@ use strict;
 
 use AnyEvent::MQTT;
 use AnyEvent::Run;
+use JSON::XS;
 
 my $config = {
     mqtt_host => $ENV{MQTT_HOST} || 'localhost',
@@ -24,6 +25,11 @@ my $mqtt = AnyEvent::MQTT->new(
 sub receive_mqtt_set {
     my ($topic, $message) = @_;
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([A-Z]\d+)/set};
+    $decoded_message = decode_json $message;
+    for(keys $decoded_message) {
+        AE::log info => "key $_ is $decoded_message{$_}\n";  
+    }
+    
     my $device = $1;
     if ($message =~ m{^on$|^off$}i) {
         AE::log info => "switching device $device $message";
