@@ -25,7 +25,7 @@ my $mqtt = AnyEvent::MQTT->new(
 sub receive_mqtt_set {
     my ($topic, $message) = @_;
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([A-Z]\d+)/set};
-    $decoded_message = decode_json $message;
+    my $decoded_message = decode_json $message;
     for(keys $decoded_message) {
         AE::log info => "key $_ is $decoded_message{$_}\n";  
     }
