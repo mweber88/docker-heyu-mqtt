@@ -33,7 +33,7 @@ sub receive_mqtt_set {
     my $decoded_message = decode_json $message;
     AE::log info => "decoded message = Dumper($decoded_message)";
     for my $key (keys %$decoded_message) {
-        AE::log info => "key $key is %$decoded_message{$key}\n";  
+        #AE::log info => "key $key is %$decoded_message{$key}\n";  
     }
     
     my $device = $1;
