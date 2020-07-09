@@ -23,7 +23,10 @@ my $mqtt = AnyEvent::MQTT->new(
 );
 
 sub receive_mqtt_set {
+    #called when the subscribed topic is received 
     my ($topic, $message) = @_;
+    AE::log info => "topic = $topic";
+    AE::log info => "message = $message";
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([A-Z]\d+)/set};
     my %decoded_message = decode_json $message;
     for(keys %decoded_message) {
@@ -31,6 +34,7 @@ sub receive_mqtt_set {
     }
     
     my $device = $1;
+    AE::log info => "device = $device";
     if ($message =~ m{^on$|^off$}i) {
         AE::log info => "switching device $device $message";
         system($config->{heyu_cmd}, lc $message, $device);
