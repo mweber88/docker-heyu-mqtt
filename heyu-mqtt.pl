@@ -3,7 +3,7 @@ use strict;
 
 use AnyEvent::MQTT;
 use AnyEvent::Run;
-use Cpanel::JSON::XS;
+use JSON::PP;
 use Data::Dumper;
 
 my $config = {
