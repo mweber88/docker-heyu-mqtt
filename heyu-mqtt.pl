@@ -30,11 +30,13 @@ sub receive_mqtt_set {
     AE::log info => "message = $message";
     my $unjson = decode_json($message);
     AE::log info => "decoded message = " . Dumper($unjson);
-    foreach my $jkey (keys %$unjson) {
-        my $val = $unjson{$jkey};
-        AE::log info => "key $jkey is $val\n";  
-    }
-    
+    my $val = $unjson{'state'};
+    AE::log info => "state is $val\n"; 
+
+    #foreach my $jkey (keys %$unjson) {
+         
+    #}
+
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([A-Z]\d+)/set};
     my $device = $1;
     AE::log info => "device = $device";
