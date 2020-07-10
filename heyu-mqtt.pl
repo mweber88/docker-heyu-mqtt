@@ -59,8 +59,10 @@ sub process_heyu_line {
         my ($house, $unit) = ($1, $2);
         $addr_queue->{$house} ||= {};
         $addr_queue->{$house}{$unit} = 1;
+        AE::log info => "elsif 1 = " . Dumper($addr_queue);
     } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])}) {
         my ($cmd, $house) = ($1, $2);
+        AE::log info => "elsif 2 = " . Dumper($addr_queue);
         if ($addr_queue->{$house}) {
             for my $k (keys %{$addr_queue->{$house}}) {
                 process_heyu_cmd(lc $cmd, "$house$k");
