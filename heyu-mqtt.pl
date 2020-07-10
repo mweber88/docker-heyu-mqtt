@@ -32,7 +32,7 @@ sub receive_mqtt_set {
     AE::log info => "decoded message = " . Dumper($unjson);
     
     foreach my $jkey (keys %$unjson) {
-        my $val = %$unjson{'state'};
+        my $val = %$unjson{$jkey};
         AE::log info => "key is $jkey, value is $val\n"; 
     }
 
