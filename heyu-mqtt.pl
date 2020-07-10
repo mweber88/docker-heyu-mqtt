@@ -29,7 +29,7 @@ sub receive_mqtt_set {
     #$message = encode('UTF-8', $message, Encode::FB_CROAK);
     AE::log info => "message = $message";
     my $unjson = decode_json($message);
-    AE::log info => "decoded message = " . Dumper($unjson);
+    #AE::log info => "decoded message = " . Dumper($unjson);
     my $val = $unjson{'state'};
     AE::log info => "state is $val\n"; 
 
