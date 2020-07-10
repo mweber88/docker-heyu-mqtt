@@ -3,7 +3,7 @@ use strict;
 
 use AnyEvent::MQTT;
 use AnyEvent::Run;
-use JSON::PP;
+use Cpanel::JSON::XS;
 use Data::Dumper;
 
 my $config = {
@@ -28,7 +28,7 @@ sub receive_mqtt_set {
     my ($topic, $message) = @_;
     #$message = encode('UTF-8', $message, Encode::FB_CROAK);
     AE::log info => "message = $message";
-    my $unjson = decode_json($message);
+    my $unjson = decode_json $message ;
     AE::log info => "decoded message = " . Dumper($unjson);
     
     foreach my $jkey (keys %$unjson) {
