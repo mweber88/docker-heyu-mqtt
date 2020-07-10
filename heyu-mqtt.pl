@@ -33,7 +33,7 @@ sub receive_mqtt_set {
     
     foreach my $jkey (keys %$unjson) {
         my $val = %$unjson{'state'};
-        AE::log info => "key is $jkey\n"; 
+        AE::log info => "key is $jkey, value is $val\n"; 
     }
 
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([A-Z]\d+)/set};
