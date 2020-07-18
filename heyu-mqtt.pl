@@ -4,6 +4,7 @@ use strict;
 use AnyEvent::MQTT;
 use AnyEvent::Run;
 use JSON::PP;
+use Switch;
 use Data::Dumper;
 
 my $config = {
@@ -42,7 +43,7 @@ sub receive_mqtt_set {
     my $heyu_command_to_send = '';
     if ($device_type eq 'std') {
         #standard
-        select(%$unjson{'state'}) {
+        switch(%$unjson{'state'}) {
             case 'OFF' {
                 $heyu_command_to_send = "off $device";
             }
@@ -58,7 +59,7 @@ sub receive_mqtt_set {
     }
     elsif ($device_type eq 'ext') {
         #extended
-        select(%$unjson{'state'}) {
+        switch(%$unjson{'state'}) {
             case 'OFF' {
                 $heyu_command_to_send = "xpreset $device 0";
             }
