@@ -39,11 +39,10 @@ sub receive_mqtt_set {
 
     my $device_type = $1;
     my $device = $2;
-    my $testval = $unjson{'state'};
     my $heyu_command_to_send = '';
     if ($device_type eq 'std') {
         #standard
-        CORE::given($testval) {
+        CORE::given($unjson->{'state'}) {
             CORE::when('OFF') {
                 $heyu_command_to_send = "off $device";
             }
@@ -59,7 +58,7 @@ sub receive_mqtt_set {
     }
     elsif ($device_type eq 'ext') {
         #extended
-        CORE::given($testval) {
+        CORE::given($unjson->{'state'}) {
             CORE::when('OFF') {
                 $heyu_command_to_send = "xpreset $device 0";
             }
