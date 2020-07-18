@@ -36,22 +36,35 @@ sub receive_mqtt_set {
         AE::log info => "key is $jkey, value is $val\n"; 
     }
 
-    $topic =~ m{\Q$config->{mqtt_prefix}\E/([A-Z]\d+)/set};
-    my $device = $1;
+    my $device = {};
+    My $command = {};
+    if ($topic =~ m{\Q$config->{mqtt_prefix}\E/std/([A-Z]\d+)/set};) {
+        #standard
+        $device = $1;
+
+    }
+    elsif ($topic =~ m{\Q$config->{mqtt_prefix}\E/ext/([A-Z]\d+)/set};) {
+        #extended
+        $device = $1;
+
+    }
+    
     AE::log info => "device = $device";
+    #here is where we switch depending on what we are doing
+
     if ($message =~ m{^on$|^off$}i) {
-        AE::log info => "switching device $device $message";
+        AE::log info => "sending command  $command";
         system($config->{heyu_cmd}, lc $message, $device);
     }
 }
 
-sub send_mqtt_status {
+sub publish_mqtt_state {
     my ($device, $status) = @_;
     $mqtt->publish(topic => "$config->{mqtt_prefix}/$device", message => sprintf('{"state":"%s"}', $status ? 'ON' : 'OFF'), retain => scalar($device =~ $config->{mqtt_retain_re}));
 }
 
 my $addr_queue = {};
-sub process_heyu_line {
+sub process_heyu_monitor_line {
     my ($handle, $line) = @_;
     if ($line =~ m{Monitor started}) {
         AE::log note => "watching heyu monitor";
@@ -76,21 +89,21 @@ sub process_heyu_cmd {
     my ($cmd, $device) = @_;
     AE::log info => "processing $device: $cmd";
     if ($cmd eq 'on') {
-        send_mqtt_status($device, 1);
+        publish_mqtt_state($device, 1);
     } elsif ($cmd eq 'off') {
-        send_mqtt_status($device, 0);
+        publish_mqtt_state($device, 0);
     }
 }
 
-$mqtt->subscribe(topic => "$config->{mqtt_prefix}/+/set", callback => \&receive_mqtt_set)->cb(sub {
-    AE::log note => "subscribed to MQTT topic $config->{mqtt_prefix}/+/set";
+$mqtt->subscribe(topic => "$config->{mqtt_prefix}/+/+/set", callback => \&receive_mqtt_set)->cb(sub {
+    AE::log note => "subscribed to MQTT topic $config->{mqtt_prefix}/+/+/set";
 });
 
 my $monitor = AnyEvent::Run->new(
     cmd => [ $config->{heyu_cmd}, 'monitor' ],
     on_read => sub {
         my $handle = shift;
-        $handle->push_read( line => \&process_heyu_line );
+        $handle->push_read( line => \&process_heyu_monitor_line );
     },
     on_error => sub {
         my ($handle, $fatal, $msg) = @_;
