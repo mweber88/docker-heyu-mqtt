@@ -36,8 +36,8 @@ sub receive_mqtt_set {
         AE::log info => "key is $jkey, value is $val\n"; 
     }
 
-    my $device = {};
-    my $command = {};
+    my $device = '';
+    my $command = '';
     if ($topic =~ m{\Q$config->{mqtt_prefix}\E/std/([A-Z]\d+)/set};) {
         #standard
         $device = $1;
