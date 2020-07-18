@@ -122,6 +122,7 @@ sub process_heyu_cmd {
 
 $mqtt->subscribe(topic => "$config->{mqtt_prefix}/+/+/set", callback => \&receive_mqtt_set)->cb(sub {
     AE::log note => "subscribed to MQTT topic $config->{mqtt_prefix}/+/+/set";
+    AE::log info => "v0.01";
 });
 
 my $monitor = AnyEvent::Run->new(
