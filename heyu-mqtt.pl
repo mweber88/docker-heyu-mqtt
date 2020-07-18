@@ -27,19 +27,17 @@ sub receive_mqtt_set {
     #called when the subscribed topic is received 
     my ($topic, $message) = @_;
     #$message = encode('UTF-8', $message, Encode::FB_CROAK);
-    AE::log info => "message = $message";
+    #AE::log info => "message = $message";
     my $unjson = decode_json $message ;
-    AE::log info => "decoded message = " . Dumper($unjson);
+    #AE::log info => "decoded message = " . Dumper($unjson);
     
     foreach my $jkey (keys %$unjson) {
         my $val = %$unjson{$jkey};
         AE::log info => "key is $jkey, value is $val\n"; 
     }
 
-    
-    my $heyu_command_to_send = '';
-
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set};
+
     my $device_type = $1;
     my $device = $2;
     my $heyu_command_to_send = '';
@@ -51,14 +49,14 @@ sub receive_mqtt_set {
         #extended
         $heyu_command_to_send = 'that';
     }
-    
-    AE::log info => "device = $device, device_type = $device_type, heyu_command_to_send = $heyu_command_to_send";
-    #here is where we switch depending on what we are doing
 
-    if ($message =~ m{^on$|^off$}i) {
+    if ($heyu_command_to_send ne '') {
+        #here is where we switch depending on what we are doing
+        AE::log info => "device = $device, device_type = $device_type, heyu_command_to_send = $heyu_command_to_send";
         AE::log info => "sending command  $heyu_command_to_send";
         system($config->{heyu_cmd}, lc $message, $device);
     }
+    
 }
 
 sub publish_mqtt_state {
