@@ -37,7 +37,7 @@ sub receive_mqtt_set {
     }
 
     my $device = {};
-    My $command = {};
+    my $command = {};
     if ($topic =~ m{\Q$config->{mqtt_prefix}\E/std/([A-Z]\d+)/set};) {
         #standard
         $device = $1;
