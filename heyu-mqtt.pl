@@ -39,7 +39,6 @@ sub receive_mqtt_set {
     
     my $heyu_command_to_send = '';
 
-
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set};
     my $device_type = $1;
     my $device = $2;
@@ -53,7 +52,7 @@ sub receive_mqtt_set {
         $heyu_command_to_send = 'that';
     }
     
-    AE::log info => "device = $device";
+    AE::log info => "device = $device, device_type = $device_type, heyu_command_to_send = $heyu_command_to_send";
     #here is where we switch depending on what we are doing
 
     if ($message =~ m{^on$|^off$}i) {
