@@ -42,11 +42,11 @@ sub receive_mqtt_set {
     my $heyu_command_to_send = '';
     if ($device_type eq 'std') {
         #standard
-        switch(%$unjson{'state'}) {
-            case 'OFF' {
+        given(%$unjson{'state'}) {
+            when 'OFF' {
                 $heyu_command_to_send = "off $device";
             }
-            case 'ON' {
+            when 'ON' {
                 if (exists(%$unjson{'brightness'})) {
                     $heyu_command_to_send = "dimb $device %$unjson{'brightness'}";
                 }
@@ -58,11 +58,11 @@ sub receive_mqtt_set {
     }
     elsif ($device_type eq 'ext') {
         #extended
-        switch(%$unjson{'state'}) {
-            case 'OFF' {
+        given(%$unjson{'state'}) {
+            when 'OFF' {
                 $heyu_command_to_send = "xpreset $device 0";
             }
-            case 'ON' {
+            when 'ON' {
                 if (exists(%$unjson{'brightness'})) {
                     $heyu_command_to_send = "xpreset $device %$unjson{'brightness'}";
                 }
