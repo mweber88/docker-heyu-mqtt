@@ -4,7 +4,6 @@ use strict;
 use AnyEvent::MQTT;
 use AnyEvent::Run;
 use JSON::PP;
-use Switch;
 use Data::Dumper;
 
 my $config = {
