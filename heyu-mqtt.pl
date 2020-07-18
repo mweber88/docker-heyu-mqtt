@@ -29,7 +29,6 @@ sub receive_mqtt_set {
     #$message = encode('UTF-8', $message, Encode::FB_CROAK);
     #AE::log info => "message = $message";
     my $unjson = decode_json $message ;
-    #AE::log info => "decoded message = " . Dumper($unjson);
     
     foreach my $jkey (keys %$unjson) {
         my $val = %$unjson{$jkey};
@@ -43,18 +42,42 @@ sub receive_mqtt_set {
     my $heyu_command_to_send = '';
     if ($device_type eq 'std') {
         #standard
-        $heyu_command_to_send = 'this';
+        select(%$unjson{'state'}) {
+            case 'OFF' {
+                $heyu_command_to_send = "off $device";
+            }
+            case 'ON' {
+                if (exists %$unjson{'brightness'}) {
+                    $heyu_command_to_send = "dimb $device %$unjson{'brightness'}";
+                }
+                else {
+                    $heyu_command_to_send = "ON $device";
+                }
+            }
+        }
     }
     elsif ($device_type eq 'ext') {
         #extended
-        $heyu_command_to_send = 'that';
+        select(%$unjson{'state'}) {
+            case 'OFF' {
+                $heyu_command_to_send = "xpreset $device 0";
+            }
+            case 'ON' {
+                if (exists %$unjson{'brightness'}) {
+                    $heyu_command_to_send = "xpreset $device %$unjson{'brightness'}";
+                }
+                else {
+                    $heyu_command_to_send = "ON $device";
+                }
+            }
+        }
     }
 
     if ($heyu_command_to_send ne '') {
         #here is where we switch depending on what we are doing
         AE::log info => "device = $device, device_type = $device_type, heyu_command_to_send = $heyu_command_to_send";
         AE::log info => "sending command  $heyu_command_to_send";
-        system($config->{heyu_cmd}, lc $message, $device);
+        system($config->{heyu_cmd}, lc $heyu_command_to_send);
     }
     
 }
