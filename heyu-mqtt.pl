@@ -48,7 +48,7 @@ sub receive_mqtt_set {
                 $heyu_command_to_send = "off $device";
             }
             CORE::when('ON') {
-                if (exists(%$unjson{'brightness'})) {
+                if (exists($unjson{'brightness'})) {
                     $heyu_command_to_send = "dimb $device %$unjson{'brightness'}";
                 }
                 else {
@@ -64,7 +64,7 @@ sub receive_mqtt_set {
                 $heyu_command_to_send = "xpreset $device 0";
             }
             CORE::when('ON') {
-                if (exists(%$unjson{'brightness'})) {
+                if (exists($unjson{'brightness'})) {
                     $heyu_command_to_send = "xpreset $device %$unjson{'brightness'}";
                 }
                 else {
