@@ -36,17 +36,21 @@ sub receive_mqtt_set {
         AE::log info => "key is $jkey, value is $val\n"; 
     }
 
-    my $device = '';
+    
     my $heyu_command_to_send = '';
-    if ($topic =~ m{\Q$config->{mqtt_prefix}\E/std/([A-Z]\d+)/set}) {
+
+
+    $topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set};
+    my $device_type = $1;
+    my $device = $2;
+    my $heyu_command_to_send = '';
+    if ($device_type eq 'std') {
         #standard
-        $device = $1;
         $heyu_command_to_send = 'this';
     }
-    elsif ($topic =~ m{\Q$config->{mqtt_prefix}\E/ext/([A-Z]\d+)/set}) {
+    elsif ($device_type eq 'ext') {
         #extended
-        $device = $1;
-        $heyu_command_to_send = 'this';
+        $heyu_command_to_send = 'that';
     }
     
     AE::log info => "device = $device";
