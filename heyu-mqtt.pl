@@ -28,10 +28,10 @@ sub receive_mqtt_set {
     my ($topic, $message) = @_;
     #$message = encode('UTF-8', $message, Encode::FB_CROAK);
     #AE::log info => "message = $message";
-    my $unjson = decode_json $message ;
+    my %unjson = decode_json $message ;
     
-    foreach my $jkey (keys %$unjson) {
-        my $val = %$unjson{$jkey};
+    foreach my $jkey (keys $unjson) {
+        my $val = $unjson{$jkey};
         AE::log info => "key is $jkey, value is $val\n"; 
     }
 
@@ -39,7 +39,7 @@ sub receive_mqtt_set {
 
     my $device_type = $1;
     my $device = $2;
-    my $testval = %$unjson{'state'};
+    my $testval = $unjson{'state'};
     my $heyu_command_to_send = '';
     if ($device_type eq 'std') {
         #standard
@@ -49,7 +49,7 @@ sub receive_mqtt_set {
             }
             CORE::when('ON') {
                 if (exists($unjson{'brightness'})) {
-                    $heyu_command_to_send = "dimb $device %$unjson{'brightness'}";
+                    $heyu_command_to_send = "dimb $device $unjson{'brightness'}";
                 }
                 else {
                     $heyu_command_to_send = "ON $device";
@@ -65,7 +65,7 @@ sub receive_mqtt_set {
             }
             CORE::when('ON') {
                 if (exists($unjson{'brightness'})) {
-                    $heyu_command_to_send = "xpreset $device %$unjson{'brightness'}";
+                    $heyu_command_to_send = "xpreset $device $unjson{'brightness'}";
                 }
                 else {
                     $heyu_command_to_send = "ON $device";
