@@ -38,12 +38,12 @@ sub receive_mqtt_set {
 
     my $device = '';
     my $heyu_command_to_send = '';
-    if ($topic =~ m{\Q$config->{mqtt_prefix}\E/std/([A-Z]\d+)/set};) {
+    if ($topic =~ m{\Q$config->{mqtt_prefix}\E/std/([A-Z]\d+)/set}) {
         #standard
         $device = $1;
         $heyu_command_to_send = 'this';
     }
-    elsif ($topic =~ m{\Q$config->{mqtt_prefix}\E/ext/([A-Z]\d+)/set};) {
+    elsif ($topic =~ m{\Q$config->{mqtt_prefix}\E/ext/([A-Z]\d+)/set}) {
         #extended
         $device = $1;
         $heyu_command_to_send = 'this';
