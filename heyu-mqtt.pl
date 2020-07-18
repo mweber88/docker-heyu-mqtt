@@ -30,7 +30,7 @@ sub receive_mqtt_set {
     #AE::log info => "message = $message";
     my %unjson = decode_json $message ;
     
-    foreach my $jkey (keys $unjson) {
+    foreach my $jkey (keys %$unjson) {
         my $val = $unjson{$jkey};
         AE::log info => "key is $jkey, value is $val\n"; 
     }
