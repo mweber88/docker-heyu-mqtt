@@ -48,7 +48,7 @@ sub receive_mqtt_set {
             CORE::when('ON') {
                 if (exists($unjson->{'brightness'})) {
                     my $reverse_brightness = 23 - $unjson->{'brightness'};
-                    $heyu_command_to_send = "dim $device $reverse_brightness";
+                    $heyu_command_to_send = "obdim $device $reverse_brightness";
                 } else {
                     $heyu_command_to_send = "ON $device";
                 }
@@ -86,6 +86,7 @@ sub receive_mqtt_set {
 
 sub publish_mqtt_state {
     my ($device, $status) = @_;
+    AE::log info => "publishing state $status for device $device";
     $mqtt->publish(topic => "$config->{mqtt_prefix}/state/$device", message => $status, retain => scalar($device =~ $config->{mqtt_retain_re}));
 }
 
@@ -98,7 +99,7 @@ sub process_heyu_monitor_line {
     } elsif ($line =~ m{  \S+ func\s+(\w+) : hu ([A-Z])(\d+)\s+level\s(\d+)}) {
         #extended
         my ($cmd, $house, $unit, $brightness) = ($1, $2, $3, $4);
-        AE::log info => "command = $cmd";
+        
         if ($cmd eq "xpreset") {
             #xpreset
             if ($brightness eq "0") {
@@ -107,6 +108,7 @@ sub process_heyu_monitor_line {
                 $status = '{"state":"ON","brightness":"$brightness"}';
             }
         }
+        AE::log info => "command = $cmd, house = $house, unit = $unit, brightness = $brightness, status = $status";
         publish_mqtt_state("$house$unit", $status);
         delete $addr_queue->{$house};
     } elsif ($line =~ m{  \S+ addr unit\s+\d+ : hu ([A-Z])(\d+)}) {
