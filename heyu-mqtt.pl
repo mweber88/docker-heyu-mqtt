@@ -47,8 +47,8 @@ sub receive_mqtt_set {
             }
             CORE::when('ON') {
                 if (exists($unjson->{'brightness'})) {
-                    my $reverse_brightness = 22 - $unjson->{'brightness'};
-                    $heyu_command_to_send = "dimb $device $reverse_brightness";
+                    my $reverse_brightness = 23 - $unjson->{'brightness'};
+                    $heyu_command_to_send = "dim $device $reverse_brightness";
                 } else {
                     $heyu_command_to_send = "ON $device";
                 }
@@ -102,9 +102,9 @@ sub process_heyu_monitor_line {
         if ($cmd eq "xpreset") {
             #xpreset
             if ($brightness eq "0") {
-                $status = '{"state":"OFF"}'
+                $status = '{"state":"OFF"}';
             } else {
-                $status = '{"state":"ON","brightness":"$brightness"}'
+                $status = '{"state":"ON","brightness":"$brightness"}';
             }
         }
         publish_mqtt_state("$house$unit", $status);
