@@ -123,7 +123,9 @@ sub process_heyu_monitor_line {
     } elsif ($line =~ m{  \S+ addr unit\s+\d+ : hu ([A-Z])(\d+)}) {
         #first, the house/unit
         my ($house, $unit) = ($1, $2);
+        AE::log note => Dumper($addr_queue);
         $addr_queue->{$house} ||= {};
+        AE::log note => Dumper($addr_queue);
         $addr_queue->{$house}{$unit} = 1;
     } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])\s+\w+\s+\W+(\d+)}) {
         #then, the command
@@ -138,7 +140,7 @@ sub process_heyu_monitor_line {
                 #$status = '{"state":"' . uc $cmd . '"}';
                 publish_mqtt_state("$house$k", $param, $status);
             }
-            delete $addr_queue->{$house};
+            #delete $addr_queue->{$house};
         }
     } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])}) {
         #then, the command
@@ -152,7 +154,7 @@ sub process_heyu_monitor_line {
                 #$status = '{"state":"' . uc $cmd . '"}';
                 publish_mqtt_state("$house$k", $param, $status);
             }
-            delete $addr_queue->{$house};
+            #delete $addr_queue->{$house};
         }
     } 
 }
