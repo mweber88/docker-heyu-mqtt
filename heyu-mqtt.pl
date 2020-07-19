@@ -124,7 +124,7 @@ sub process_heyu_monitor_line {
     } 
 }
 
-$mqtt->subscribe(topic => "$config->{mqtt_prefix}/+/+/set", callback => \&receive_mqtt_set)->cb(sub {
+$mqtt->subscribe(topic => "$config->{mqtt_prefix}/+/+/set/+", callback => \&receive_mqtt_set)->cb(sub {
     AE::log note => "subscribed to MQTT topic $config->{mqtt_prefix}/+/+/set";
 });
 
