@@ -96,12 +96,12 @@ sub receive_mqtt_set {
 sub publish_mqtt_state {
     my ($device, $status) = @_;
     AE::log info => "publishing state $status for device $device";
-    $mqtt->publish(topic => "$config->{mqtt_prefix}/state/$device", message => $status, retain => scalar($device =~ $config->{mqtt_retain_re}));
+    $mqtt->publish(topic => "$config->{mqtt_prefix}/state/$device/$param", message => $status, retain => scalar($device =~ $config->{mqtt_retain_re}));
 }
 
 my $addr_queue = {};
 sub process_heyu_monitor_line {
-    my $status = '';
+    my ($status, $param) = ('','');
     my ($handle, $line) = @_;
     if ($line =~ m{Monitor started}) {
         AE::log note => "watching heyu monitor";
@@ -125,13 +125,32 @@ sub process_heyu_monitor_line {
         my ($house, $unit) = ($1, $2);
         $addr_queue->{$house} ||= {};
         $addr_queue->{$house}{$unit} = 1;
+    } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])\s+(\W+\d+)}) {
+        #then, the command
+        my ($cmd, $house) = ($1, $2);
+        if ($addr_queue->{$house}) {
+            for my $k (keys %{$addr_queue->{$house}}) {
+                if ((uc($cmd)) eq "ON" || (uc($cmd)) eq "OFF") {
+                    $param = 'state';
+                }
+                elsif ((uc($cmd)) eq 'DIM') $param = 'brightness';
+                $status = uc($message);
+                #$status = '{"state":"' . uc $cmd . '"}';
+                publish_mqtt_state("$house$k", $param, $status);
+            }
+            delete $addr_queue->{$house};
+        }
     } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])}) {
         #then, the command
         my ($cmd, $house) = ($1, $2);
         if ($addr_queue->{$house}) {
             for my $k (keys %{$addr_queue->{$house}}) {
-                $status = '{"state":"' . uc $cmd . '"}';
-                publish_mqtt_state("$house$k", $status);
+                if ((uc($cmd)) eq "ON" || (uc($cmd)) eq "OFF") {
+                    $param = 'state';
+                }
+                $status = uc($message);
+                #$status = '{"state":"' . uc $cmd . '"}';
+                publish_mqtt_state("$house$k", $param, $status);
             }
             delete $addr_queue->{$house};
         }
