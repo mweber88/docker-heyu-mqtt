@@ -127,7 +127,7 @@ sub process_heyu_monitor_line {
         $addr_queue->{$house}{$unit} = 1;
     } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])\s+(\W+\d+)}) {
         #then, the command
-        my ($cmd, $house) = ($1, $2);
+        my ($cmd, $house, $message) = ($1, $2, $3);
         if ($addr_queue->{$house}) {
             for my $k (keys %{$addr_queue->{$house}}) {
                 if ((uc($cmd)) eq "ON" || (uc($cmd)) eq "OFF") {
@@ -148,7 +148,7 @@ sub process_heyu_monitor_line {
                 if ((uc($cmd)) eq "ON" || (uc($cmd)) eq "OFF") {
                     $param = 'state';
                 }
-                $status = uc($message);
+                $status = uc($cmd);
                 #$status = '{"state":"' . uc $cmd . '"}';
                 publish_mqtt_state("$house$k", $param, $status);
             }
