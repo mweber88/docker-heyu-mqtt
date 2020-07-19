@@ -28,14 +28,27 @@ sub receive_mqtt_set {
     AE::log note => "going to send a subscribed command";
     my ($topic, $message) = @_;
     AE::log note => $message;
-    my $unjson = decode_json $message ;
+    #my $unjson = decode_json $message ;
 
-    $topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set};
-    my ($device_type, $device) = ($1, $2);
+    $topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set/(\w+)};
+    my ($device_type, $device, $param) = ($1, $2, $3);
+    AE::log note => "param=$param";
 
     my $heyu_command_to_send = '';
     if ($device_type eq 'std') {
         #standard
+        if (lc $param eq 'state') {
+            $heyu_command_to_send = "uc $message $device";
+        }
+        elsif (lc $param eq 'brightness') {
+            my $reverse_brightness = 23 - $unjson->{'brightness'};
+            $heyu_command_to_send = "obdim $device $reverse_brightness";
+        }
+
+
+
+
+=pod
         CORE::given($unjson->{'state'}) {
             CORE::when('OFF') {
                 $heyu_command_to_send = "off $device";
@@ -49,6 +62,7 @@ sub receive_mqtt_set {
                 }
             }
         }
+=cut
     }
     elsif ($device_type eq 'ext') {
         #extended
