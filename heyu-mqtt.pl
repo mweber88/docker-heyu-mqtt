@@ -88,6 +88,7 @@ sub receive_mqtt_set {
         #here is where we switch depending on what we are doing
         AE::log info => "device = $device, device_type = $device_type, heyu_command_to_send = $heyu_command_to_send";
         AE::log info => "sending command  $heyu_command_to_send";
+        publish_mqtt_state("$device", $param, $message);
         system($config->{heyu_cmd}, lc $heyu_command_to_send);
     }
     
