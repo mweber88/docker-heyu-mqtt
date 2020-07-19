@@ -24,7 +24,8 @@ my $mqtt = AnyEvent::MQTT->new(
 );
 
 sub receive_mqtt_set {
-    #called when the subscribed topic is received 
+    #called when the subscribed topic is received
+    AE::log note => "going to send a subscribed command";
     my ($topic, $message) = @_;
     my $unjson = decode_json $message ;
 
