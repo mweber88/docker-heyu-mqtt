@@ -133,7 +133,7 @@ sub process_heyu_monitor_line {
                 if ((uc($cmd)) eq "ON" || (uc($cmd)) eq "OFF") {
                     $param = 'state';
                 }
-                elsif ((uc($cmd)) eq 'DIM') $param = 'brightness';
+                elsif ((uc($cmd)) eq 'DIM') {$param = 'brightness';}
                 $status = uc($message);
                 #$status = '{"state":"' . uc $cmd . '"}';
                 publish_mqtt_state("$house$k", $param, $status);
