@@ -38,7 +38,7 @@ sub receive_mqtt_set {
     if ($device_type eq 'std') {
         #standard
         if (lc $param eq 'state') {
-            $heyu_command_to_send = "uc $message $device";
+            $heyu_command_to_send = "$message $device";
         }
         elsif (lc $param eq 'brightness') {
             my $reverse_brightness = 23 - $unjson->{'brightness'};
