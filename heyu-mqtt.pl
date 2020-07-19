@@ -85,8 +85,8 @@ sub receive_mqtt_set {
 }
 
 sub publish_mqtt_state {
-    my ($device, $device_type, $status) = @_;
-    $mqtt->publish(topic => "$config->{mqtt_prefix}/$device_type/$device/state", message => $status, retain => scalar($device =~ $config->{mqtt_retain_re}));
+    my ($device, $status) = @_;
+    $mqtt->publish(topic => "$config->{mqtt_prefix}/state/$device", message => $status, retain => scalar($device =~ $config->{mqtt_retain_re}));
 }
 
 my $addr_queue = {};
@@ -107,7 +107,7 @@ sub process_heyu_monitor_line {
                 $status = '{"state":"ON","brightness":"$brightness"}'
             }
         }
-        publish_mqtt_state("$house$unit", "ext", $status);
+        publish_mqtt_state("$house$unit", $status);
         delete $addr_queue->{$house};
     } elsif ($line =~ m{  \S+ addr unit\s+\d+ : hu ([A-Z])(\d+)}) {
         #first, the house/unit
@@ -122,7 +122,7 @@ sub process_heyu_monitor_line {
         if ($addr_queue->{$house}) {
             for my $k (keys %{$addr_queue->{$house}}) {
                 $status = '{"state":"' . uc $cmd . '"}';
-                publish_mqtt_state("$house$k", "std", $status);
+                publish_mqtt_state("$house$k", $status);
                # process_heyu_cmd(lc $cmd, "$house$k");
             }
             delete $addr_queue->{$house};
