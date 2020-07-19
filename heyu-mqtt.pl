@@ -28,7 +28,7 @@ sub receive_mqtt_set {
     AE::log note => "going to send a subscribed command";
     my ($topic, $message) = @_;
     AE::log note => $message;
-    #my $unjson = decode_json $message ;
+    my $unjson = {}; #decode_json $message ;
 
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set/(\w+)};
     my ($device_type, $device, $param) = ($1, $2, $3);
