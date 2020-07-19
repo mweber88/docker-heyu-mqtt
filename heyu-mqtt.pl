@@ -41,7 +41,7 @@ sub receive_mqtt_set {
             $heyu_command_to_send = "$message $device";
         }
         elsif (lc $param eq 'brightness') {
-            my $reverse_brightness = 23 - $unjson->{'brightness'};
+            my $reverse_brightness = 23 - $message;
             $heyu_command_to_send = "obdim $device $reverse_brightness";
         }
 
