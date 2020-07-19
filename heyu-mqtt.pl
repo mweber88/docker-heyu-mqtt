@@ -93,12 +93,12 @@ sub process_heyu_monitor_line {
         #extended
         my ($cmd, $house, $unit, $brightness) = ($1, $2, $3, $4);
         
-        if ($cmd eq "xPreset") {
+        if (lc $cmd eq "xpreset") {
             #xpreset
             if ($brightness eq "0") {
                 $status = '{"state":"OFF"}';
             } else {
-                $status = '{"state":"ON","brightness":"$brightness"}';
+                $status = "{\"state\":\"ON\",\"brightness\":\"$brightness\"}";
             }
         }
         AE::log info => "command = $cmd, house = $house, unit = $unit, brightness = $brightness, status = $status";
@@ -124,7 +124,6 @@ sub process_heyu_monitor_line {
 
 $mqtt->subscribe(topic => "$config->{mqtt_prefix}/+/+/set", callback => \&receive_mqtt_set)->cb(sub {
     AE::log note => "subscribed to MQTT topic $config->{mqtt_prefix}/+/+/set";
-    AE::log info => "v0.01";
 });
 
 my $monitor = AnyEvent::Run->new(
