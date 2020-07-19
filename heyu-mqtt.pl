@@ -26,14 +26,7 @@ my $mqtt = AnyEvent::MQTT->new(
 sub receive_mqtt_set {
     #called when the subscribed topic is received 
     my ($topic, $message) = @_;
-    #$message = encode('UTF-8', $message, Encode::FB_CROAK);
-    #AE::log info => "message = $message";
     my $unjson = decode_json $message ;
-    
-    foreach my $jkey (keys %$unjson) {
-        my $val = $unjson->{$jkey};
-        AE::log info => "key is $jkey, value is $val\n"; 
-    }
 
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set};
     my ($device_type, $device) = ($1, $2);
@@ -60,14 +53,14 @@ sub receive_mqtt_set {
         CORE::given($unjson->{'state'}) {
             CORE::when('OFF') {
                 if (exists($unjson->{'brightness'})) {
-                    $heyu_command_to_send = "xpreset $device 0";
+                    $heyu_command_to_send = "xPreset $device 0";
                 } else {
                     $heyu_command_to_send = "xoff $device";
                 }
             }
             CORE::when('ON') {
                 if (exists($unjson->{'brightness'})) {
-                    $heyu_command_to_send = "xpreset $device $unjson->{'brightness'}";
+                    $heyu_command_to_send = "xPreset $device $unjson->{'brightness'}";
                 } else {
                     $heyu_command_to_send = "ON $device";
                 }
@@ -100,7 +93,7 @@ sub process_heyu_monitor_line {
         #extended
         my ($cmd, $house, $unit, $brightness) = ($1, $2, $3, $4);
         
-        if ($cmd eq "xpreset") {
+        if ($cmd eq "xPreset") {
             #xpreset
             if ($brightness eq "0") {
                 $status = '{"state":"OFF"}';
@@ -116,30 +109,17 @@ sub process_heyu_monitor_line {
         my ($house, $unit) = ($1, $2);
         $addr_queue->{$house} ||= {};
         $addr_queue->{$house}{$unit} = 1;
-        AE::log info => "elsif 1 = " . Dumper($addr_queue);
     } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])}) {
         #then, the command
         my ($cmd, $house) = ($1, $2);
-        AE::log info => "elsif 2 = " . Dumper($addr_queue);
         if ($addr_queue->{$house}) {
             for my $k (keys %{$addr_queue->{$house}}) {
                 $status = '{"state":"' . uc $cmd . '"}';
                 publish_mqtt_state("$house$k", $status);
-               # process_heyu_cmd(lc $cmd, "$house$k");
             }
             delete $addr_queue->{$house};
         }
     } 
-}
-
-sub process_heyu_cmd {
-    my ($cmd, $device) = @_;
-    AE::log info => "processing $device: $cmd";
-    if ($cmd eq 'on') {
-        publish_mqtt_state($device, 1);
-    } elsif ($cmd eq 'off') {
-        publish_mqtt_state($device, 0);
-    }
 }
 
 $mqtt->subscribe(topic => "$config->{mqtt_prefix}/+/+/set", callback => \&receive_mqtt_set)->cb(sub {
