@@ -27,7 +27,7 @@ sub receive_mqtt_set {
     #called when the subscribed topic is received
     AE::log note => "going to send a subscribed command";
     my ($topic, $message) = @_;
-    AE::log note => $message;
+    AE::log note => "topic = $topic, message = $message";
     my $unjson = {}; #decode_json $message ;
 
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set/(\w+)};
@@ -125,7 +125,7 @@ sub process_heyu_monitor_line {
         my ($house, $unit) = ($1, $2);
         $addr_queue->{$house} ||= {};
         $addr_queue->{$house}{$unit} = 1;
-    } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])\s+(\W+\d+)}) {
+    } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])\s+\w+\s+\W+(\d+)}) {
         #then, the command
         my ($cmd, $house, $message) = ($1, $2, $3);
         if ($addr_queue->{$house}) {
@@ -158,7 +158,7 @@ sub process_heyu_monitor_line {
 }
 
 $mqtt->subscribe(topic => "$config->{mqtt_prefix}/+/+/set/+", callback => \&receive_mqtt_set)->cb(sub {
-    AE::log note => "subscribed to MQTT topic $config->{mqtt_prefix}/+/+/set";
+    AE::log note => "subscribed to MQTT topic $config->{mqtt_prefix}/+/+/set/+";
 });
 
 my $monitor = AnyEvent::Run->new(
