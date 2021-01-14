@@ -32,12 +32,13 @@ sub receive_mqtt_set {
 
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set};
     #$topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set/(\w+)};
-    my ($device_type, $device, $param) = ($1, $2, $3);
+    my ($device_type, $device) = ($1, $2);
     AE::log note => "param=$param";
 
     my $heyu_command_to_send = '';
     if ($device_type eq 'std') {
         #standard
+=pod
         if (lc $param eq 'state') {
             $heyu_command_to_send = "$message $device";
         }
@@ -45,11 +46,8 @@ sub receive_mqtt_set {
             my $reverse_brightness = 23 - $message;
             $heyu_command_to_send = "obdim $device $reverse_brightness";
         }
+=cut
 
-
-
-
-=pod
         CORE::given($unjson->{'state'}) {
             CORE::when('OFF') {
                 $heyu_command_to_send = "off $device";
@@ -63,7 +61,7 @@ sub receive_mqtt_set {
                 }
             }
         }
-=cut
+
     }
     elsif ($device_type eq 'ext') {
         #extended
@@ -89,16 +87,17 @@ sub receive_mqtt_set {
         #here is where we switch depending on what we are doing
         AE::log info => "device = $device, device_type = $device_type, heyu_command_to_send = $heyu_command_to_send";
         AE::log info => "sending command  $heyu_command_to_send";
-        publish_mqtt_state("$device", $param, $message);
+        publish_mqtt_state("$device", $message);
         system($config->{heyu_cmd}, lc $heyu_command_to_send);
     }
     
 }
 
 sub publish_mqtt_state {
-    my ($device, $param, $status) = @_;
-    AE::log info => "publishing $param $status for device $device";
-    $mqtt->publish(topic => "$config->{mqtt_prefix}/state/$device/$param", message => $status, retain => scalar($device =~ $config->{mqtt_retain_re}));
+    my ($device, $status) = @_;
+    AE::log info => "Here in the publish";
+    AE::log info => "publishing $status for device $device";
+    $mqtt->publish(topic => "$config->{mqtt_prefix}/state/$device", message => $status, retain => scalar($device =~ $config->{mqtt_retain_re}));
 }
 
 my $addr_queue = {};
@@ -120,7 +119,7 @@ sub process_heyu_monitor_line {
             }
         }
         AE::log info => "command = $cmd, house = $house, unit = $unit, brightness = $brightness, status = $status";
-        publish_mqtt_state("$house$unit", "brightness", $status);
+        #publish_mqtt_state("$house$unit", "brightness", $status);
         delete $addr_queue->{$house};
     } elsif ($line =~ m{  \S+ addr unit\s+\d+ : hu ([A-Z])(\d+)}) {
         #first, the house/unit
@@ -138,7 +137,7 @@ sub process_heyu_monitor_line {
                     $param = 'brightness';
                     $status = uc($message);
                     #$status = '{"state":"' . uc $cmd . '"}';
-                    publish_mqtt_state("$house$k", $param, $status);
+                    #publish_mqtt_state("$house$k", $param, $status);
                 }
             }
             #delete $addr_queue->{$house};
@@ -153,7 +152,7 @@ sub process_heyu_monitor_line {
                 }
                 $status = uc($cmd);
                 #$status = '{"state":"' . uc $cmd . '"}';
-                publish_mqtt_state("$house$k", $param, $status);
+                #publish_mqtt_state("$house$k", $param, $status);
             }
             #delete $addr_queue->{$house};
         }
