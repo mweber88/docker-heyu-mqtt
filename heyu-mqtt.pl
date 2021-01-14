@@ -28,9 +28,10 @@ sub receive_mqtt_set {
     AE::log note => "going to send a subscribed command";
     my ($topic, $message) = @_;
     AE::log note => "topic = $topic, message = $message";
-    my $unjson = {}; #decode_json $message ;
+    my $unjson = decode_json $message;
 
-    $topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set/(\w+)};
+    $topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set};
+    #$topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set/(\w+)};
     my ($device_type, $device, $param) = ($1, $2, $3);
     AE::log note => "param=$param";
 
@@ -159,8 +160,8 @@ sub process_heyu_monitor_line {
     } 
 }
 
-$mqtt->subscribe(topic => "$config->{mqtt_prefix}/+/+/set/+", callback => \&receive_mqtt_set)->cb(sub {
-    AE::log note => "subscribeddddd to MQTT topic $config->{mqtt_prefix}/+/+/set/+";
+$mqtt->subscribe(topic => "$config->{mqtt_prefix}/+/+/set", callback => \&receive_mqtt_set)->cb(sub {
+    AE::log note => "subscribed to MQTT topic $config->{mqtt_prefix}/+/+/set";
 });
 
 my $monitor = AnyEvent::Run->new(
