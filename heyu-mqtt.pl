@@ -96,7 +96,8 @@ sub receive_mqtt_set {
 sub publish_mqtt_state {
     my ($device, $status) = @_;
     AE::log info => "Here in the publish";
-    AE::log info => "publishing $status for device $device";
+    my $scalarVal = scalar($device =~ $config->{mqtt_retain_re});
+    AE::log info => "publishing $status for device $device with retention $scalarVal";
     $mqtt->publish(topic => "$config->{mqtt_prefix}/state/$device", message => $status, retain => scalar($device =~ $config->{mqtt_retain_re}));
 }
 
@@ -119,7 +120,7 @@ sub process_heyu_monitor_line {
             }
         }
         AE::log info => "command = $cmd, house = $house, unit = $unit, brightness = $brightness, status = $status";
-        #publish_mqtt_state("$house$unit", "brightness", $status);
+        #publish_mqtt_state("$house$unit", $status);
         delete $addr_queue->{$house};
     } elsif ($line =~ m{  \S+ addr unit\s+\d+ : hu ([A-Z])(\d+)}) {
         #first, the house/unit
@@ -130,20 +131,21 @@ sub process_heyu_monitor_line {
         $addr_queue->{$house}{$unit} = 1;
     } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])\s+\w+\s+\W+(\d+)}) {
         #then, the command
+        AE::log note => "first command condition";
         my ($cmd, $house, $message) = ($1, $2, $3);
         if ($addr_queue->{$house}) {
             for my $k (keys %{$addr_queue->{$house}}) {
                 if ((uc($cmd)) eq "DIM" || (uc($cmd)) eq "BRIGHT") {
-                    $param = 'brightness';
                     $status = uc($message);
                     #$status = '{"state":"' . uc $cmd . '"}';
-                    #publish_mqtt_state("$house$k", $param, $status);
+                    #publish_mqtt_state("$house$k", $status);
                 }
             }
             #delete $addr_queue->{$house};
         }
     } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])}) {
         #then, the command
+        AE::log note => "second command condition";
         my ($cmd, $house) = ($1, $2);
         if ($addr_queue->{$house}) {
             for my $k (keys %{$addr_queue->{$house}}) {
