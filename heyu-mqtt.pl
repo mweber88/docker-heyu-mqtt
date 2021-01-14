@@ -33,7 +33,7 @@ sub receive_mqtt_set {
     $topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set};
     #$topic =~ m{\Q$config->{mqtt_prefix}\E/([a-z]+)/([A-Z]\d+)/set/(\w+)};
     my ($device_type, $device) = ($1, $2);
-    AE::log note => "param=$param";
+    #AE::log note => "param=$param";
 
     my $heyu_command_to_send = '';
     if ($device_type eq 'std') {
