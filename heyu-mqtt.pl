@@ -11,7 +11,7 @@ my $config = {
     mqtt_port => $ENV{MQTT_PORT} || '1883',
     mqtt_user => $ENV{MQTT_USER},
     mqtt_password => $ENV{MQTT_PASSWORD},
-    mqtt_prefix => $ENV{MQTT_PREFIX} || 'home/x10',
+    mqtt_prefix => $ENV{MQTT_PREFIX} || 'homeassistant/x10',
     mqtt_retain_re => qr/$ENV{MQTT_RETAIN_RE}/i || qr//, # retain everything
     heyu_cmd => $ENV{HEYU_CMD} || 'heyu',
 };
