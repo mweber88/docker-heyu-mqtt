@@ -55,6 +55,8 @@ sub receive_mqtt_set {
             CORE::when('ON') {
                 if (exists($unjson->{'brightness'})) {
                     my $reverse_brightness = 23 - $unjson->{'brightness'};
+                    my $currentBrightness = system($config->{heyu_cmd}, "dimlevel $device");
+                    AE::log note => "current brightness=$currentBrightness";
                     $heyu_command_to_send = "obdim $device $reverse_brightness";
                 } else {
                     $heyu_command_to_send = "ON $device";
@@ -130,7 +132,7 @@ sub process_heyu_monitor_line {
         $addr_queue->{$house}{$unit} = 1;
     } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])\s+\w+\s+\W+(\d+)}) {
         #then, the command
-        AE::log note => "first command condition";
+        AE::log note => "first command condition (bright or dim)";
         my ($cmd, $house, $message) = ($1, $2, $3);
         AE::log note => "cmd=$cmd, house=$house, Message=$message";
         if ($addr_queue->{$house}) {
@@ -147,7 +149,7 @@ sub process_heyu_monitor_line {
         }
     } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])}) {
         #then, the command
-        AE::log note => "second command condition";
+        AE::log note => "second command condition (on or off)";
         my ($cmd, $house) = ($1, $2);
         AE::log note => "cmd=$cmd, house=$house";
         if ($addr_queue->{$house}) {
