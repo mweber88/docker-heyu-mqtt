@@ -158,7 +158,7 @@ sub process_heyu_monitor_line {
                     $param = 'state';
                 }
                 $status = uc($cmd);
-                AE::log note => "key=$K, status: $status";
+                AE::log note => "key=$k, status: $status";
                 #$status = '{"state":"' . uc $cmd . '"}';
                 #publish_mqtt_state("$house$k", $status);
             }
