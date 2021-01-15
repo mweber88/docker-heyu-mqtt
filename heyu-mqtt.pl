@@ -116,7 +116,7 @@ sub process_heyu_monitor_line {
             if ($brightness eq "0") {
                 $status = '{"state":"OFF"}';
             } else {
-                $status = "{\"state\":\"ON\",\"brightness\":\"$brightness\"}";
+                $status = "{\"state\":\"ON\",\"brightness\": $brightness}";
             }
         }
         AE::log info => "command = $cmd, house = $house, unit = $unit, brightness = $brightness, status = $status";
@@ -124,22 +124,22 @@ sub process_heyu_monitor_line {
         delete $addr_queue->{$house};
     } elsif ($line =~ m{  \S+ addr unit\s+\d+ : hu ([A-Z])(\d+)}) {
         #first, the house/unit
+        AE::log note => "Part 1 - house/unit code";
         my ($house, $unit) = ($1, $2);
-        AE::log note => "1st dump " . Dumper($addr_queue);
         $addr_queue->{$house} ||= {};
-        AE::log note => "2nd dump " . Dumper($addr_queue);
         $addr_queue->{$house}{$unit} = 1;
-        AE::log note => "3rd dump " . Dumper($addr_queue);
     } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])\s+\w+\s+\W+(\d+)}) {
         #then, the command
         AE::log note => "first command condition";
         my ($cmd, $house, $message) = ($1, $2, $3);
+        AE::log note => "cmd=$cmd, house=$house, Message=$message";
         if ($addr_queue->{$house}) {
+            AE::log note => "in the house condition";
             for my $k (keys %{$addr_queue->{$house}}) {
                 if ((uc($cmd)) eq "DIM" || (uc($cmd)) eq "BRIGHT") {
                     $status = uc($message);
                     #$status = '{"state":"' . uc $cmd . '"}';
-                    AE::log note => "status: $status";
+                    AE::log note => "status1: $status";
                     #publish_mqtt_state("$house$k", $status);
                 }
             }
@@ -153,13 +153,9 @@ sub process_heyu_monitor_line {
         if ($addr_queue->{$house}) {
             AE::log note => "in the house condition";
             for my $k (keys %{$addr_queue->{$house}}) {
-                #AE::log note => "key=$k";
-                if ((uc($cmd)) eq "ON" || (uc($cmd)) eq "OFF") {
-                    $param = 'state';
-                }
-                $status = uc($cmd);
-                AE::log note => "key=$k, status: $status";
-                #$status = '{"state":"' . uc $cmd . '"}';
+                #$status = uc($cmd);
+                $status = '{"state":"' . uc $cmd . '"}';
+                AE::log note => "status2: $status";
                 #publish_mqtt_state("$house$k", $status);
             }
             delete $addr_queue->{$house};
