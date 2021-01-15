@@ -55,7 +55,7 @@ sub receive_mqtt_set {
             CORE::when('ON') {
                 if (exists($unjson->{'brightness'})) {
                     my $reverse_brightness = 23 - $unjson->{'brightness'};
-                    my $currentBrightness = system($config->{heyu_cmd}, "dimlevel $device");
+                    my $currentBrightness = `$config->{heyu_cmd} dimlevel $device`;
                     AE::log note => "current brightness=$currentBrightness";
                     $heyu_command_to_send = "obdim $device $reverse_brightness";
                 } else {
