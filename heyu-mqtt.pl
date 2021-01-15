@@ -149,13 +149,16 @@ sub process_heyu_monitor_line {
         #then, the command
         AE::log note => "second command condition";
         my ($cmd, $house) = ($1, $2);
+        AE::log note => "cmd=$cmd, house=$house";
         if ($addr_queue->{$house}) {
+            AE::log note => "in the house condition";
             for my $k (keys %{$addr_queue->{$house}}) {
+                #AE::log note => "key=$k";
                 if ((uc($cmd)) eq "ON" || (uc($cmd)) eq "OFF") {
                     $param = 'state';
                 }
                 $status = uc($cmd);
-                AE::log note => "status: $status";
+                AE::log note => "key=$K, status: $status";
                 #$status = '{"state":"' . uc $cmd . '"}';
                 #publish_mqtt_state("$house$k", $status);
             }
