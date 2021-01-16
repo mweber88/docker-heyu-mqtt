@@ -144,7 +144,7 @@ sub process_heyu_monitor_line {
         AE::log info => "command = $cmd, house = $house, unit = $unit, brightness = $brightness, status = $status";
         #publish_mqtt_state("$house$unit", $status);
         delete $addr_queue->{$house};
-    } elsif ($line =~ m{  \S+ rcvi addr unit\s+\d+ : hu ([P])(\d+)}) {
+    } elsif ($line =~ m{  \S+\s+ rcvi addr unit\s+\d+ : hu ([P])(\d+)}) {
         #first, the house/unit
         AE::log note => "Part 1 - house/unit code";
         my ($house, $unit) = ($1, $2);
@@ -169,7 +169,7 @@ sub process_heyu_monitor_line {
             delete $addr_queue->{$house};
         }
 =cut
-    } elsif ($line =~ m{  \S+ rcvi func\s+(?:Status)?(\w+) : hc ([P])}) {
+    } elsif ($line =~ m{  \S+\s+ rcvi func\s+(?:Status)?(\w+) : hc ([P])}) {
         #then, the command
         AE::log note => "second command condition (on or off)";
         my ($cmd, $house) = ($1, $2);
@@ -192,7 +192,7 @@ $mqtt->subscribe(topic => "$config->{mqtt_prefix}/+/+/set", callback => \&receiv
 });
 
 #always turn on extended reporting for all house codes
-system($config->{heyu_cmd}, lc "xconfig B 1; xconfig K 1; xconfig L 1; xpowerup B4; xpowerup K2; xpowerup K3; xpowerup L2");
+#system($config->{heyu_cmd}, lc "xconfig B 1; xconfig K 1; xconfig L 1; xpowerup B4; xpowerup K2; xpowerup K3; xpowerup L2");
 
 my $monitor = AnyEvent::Run->new(
     cmd => [ $config->{heyu_cmd}, 'monitor' ],
