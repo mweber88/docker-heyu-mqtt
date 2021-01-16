@@ -56,11 +56,13 @@ sub receive_mqtt_set {
                 if (exists($unjson->{'brightness'})) {
                     $heyu_command_to_send = "\"";
                     my $currBrightness = `$config->{heyu_cmd} dimlevel $device`;
-                    AE::log note => "currBrightness=$currBrightness";
                     if ($currBrightness == 0) {
                         $currBrightness = 22;
                         $heyu_command_to_send = $heyu_command_to_send . "ON $device;";
+                    } else {
+                        $currBrightness = int(.22*$currBrightness);
                     }
+                    AE::log note => "currBrightness=$currBrightness";
                     my $destBrightness = $unjson->{'brightness'};
                     AE::log note => "destBrightness=$destBrightness";
                     my $diffBrightness = $destBrightness - $currBrightness;
