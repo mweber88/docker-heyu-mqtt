@@ -144,12 +144,13 @@ sub process_heyu_monitor_line {
         AE::log info => "command = $cmd, house = $house, unit = $unit, brightness = $brightness, status = $status";
         #publish_mqtt_state("$house$unit", $status);
         delete $addr_queue->{$house};
-    } elsif ($line =~ m{  \S+ addr unit\s+\d+ : hu ([A-Z])(\d+)}) {
+    } elsif ($line =~ m{  \S+ rcvi addr unit\s+\d+ : hu ([P])(\d+)}) {
         #first, the house/unit
         AE::log note => "Part 1 - house/unit code";
         my ($house, $unit) = ($1, $2);
         $addr_queue->{$house} ||= {};
         $addr_queue->{$house}{$unit} = 1;
+=pod        
     } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])\s+\w+\s+\W+(\d+)}) {
         #then, the command
         AE::log note => "first command condition (bright or dim)";
@@ -160,14 +161,15 @@ sub process_heyu_monitor_line {
             for my $k (keys %{$addr_queue->{$house}}) {
                 if ((uc($cmd)) eq "DIM" || (uc($cmd)) eq "BRIGHT") {
                     $status = uc($message);
-                    #$status = '{"state":"' . uc $cmd . '"}';
+                    #$status = '{"state": "ON", "brightness": ' . uc $cmd . '}';
                     AE::log note => "status1: $status";
                     #publish_mqtt_state("$house$k", $status);
                 }
             }
             delete $addr_queue->{$house};
         }
-    } elsif ($line =~ m{  \S+ func\s+(\w+) : hc ([A-Z])}) {
+=cut
+    } elsif ($line =~ m{  \S+ rcvi func\s+(?:Status)?(\w+) : hc ([P])}) {
         #then, the command
         AE::log note => "second command condition (on or off)";
         my ($cmd, $house) = ($1, $2);
@@ -178,7 +180,7 @@ sub process_heyu_monitor_line {
                 #$status = uc($cmd);
                 $status = '{"state":"' . uc $cmd . '"}';
                 AE::log note => "status2: $status";
-                #publish_mqtt_state("$house$k", $status);
+                publish_mqtt_state("$house$k", $status);
             }
             delete $addr_queue->{$house};
         }
@@ -188,6 +190,9 @@ sub process_heyu_monitor_line {
 $mqtt->subscribe(topic => "$config->{mqtt_prefix}/+/+/set", callback => \&receive_mqtt_set)->cb(sub {
     AE::log note => "subscribed to MQTT topic $config->{mqtt_prefix}/+/+/set";
 });
+
+#always turn on extended reporting for all house codes
+system($config->{heyu_cmd}, lc "xconfig B 1; xconfig K 1; xconfig L 1; xpowerup B4; xpowerup K2; xpowerup K3; xpowerup L2");
 
 my $monitor = AnyEvent::Run->new(
     cmd => [ $config->{heyu_cmd}, 'monitor' ],
