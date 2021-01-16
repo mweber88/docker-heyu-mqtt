@@ -54,11 +54,11 @@ sub receive_mqtt_set {
             }
             CORE::when('ON') {
                 if (exists($unjson->{'brightness'})) {
-                    $heyu_command_to_send = "\"";
+                    #$heyu_command_to_send = "\"";
                     my $currBrightness = `$config->{heyu_cmd} dimlevel $device`;
                     if ($currBrightness == 0) {
                         $currBrightness = 22;
-                        $heyu_command_to_send = $heyu_command_to_send . "ON $device;";
+                        $heyu_command_to_send = $heyu_command_to_send . "on $device;";
                     } else {
                         $currBrightness = int(.22*$currBrightness);
                     }
@@ -77,10 +77,10 @@ sub receive_mqtt_set {
                     } 
                     #my $reverse_brightness = 23 - $unjson->{'brightness'};
                     #$heyu_command_to_send = "obdim $device $reverse_brightness";
-                    $heyu_command_to_send = $heyu_command_to_send . "\"";
+                    #$heyu_command_to_send = $heyu_command_to_send . "\"";
                     AE::log note => "heyu_command_to_send=$heyu_command_to_send";
                 } else {
-                    $heyu_command_to_send = "ON $device";
+                    $heyu_command_to_send = "on $device";
                 }
             }
         }
